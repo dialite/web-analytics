@@ -1,8 +1,9 @@
 "use client"
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Logo from "../comps/Logo";
 import { supabase } from "@/config/Supabase_Client";
 import useUser from "@/hooks/useUser";
+import { Item } from "@radix-ui/react-dropdown-menu";
 
 export default function AddPage() {
     const [user] = useUser();
@@ -29,6 +30,42 @@ export default function AddPage() {
         setLoading(false);
     };
 
+    const checkDomainAddedBefore = async () => {
+        setError(""); // Reset error state
+        let fetchedWebsites = [];
+    
+        const { data: websites, error } = await supabase.from("website").select("*");
+    
+        if (error) {
+            setError("Error fetching websites"); // Set error if the query fails
+            return;
+        }
+    
+        fetchedWebsites = websites || []; // Ensure it's always an array
+    
+        if (fetchedWebsites.some(item => item.website_name === website)) {
+            setError("This domain has already been added before"); // Display error message
+        } else {
+            setError(""); // Clear error if not found
+            addWebsite();
+        }
+    };
+    
+    useEffect(() => {
+        if (
+            website.trim().includes("http") ||
+            website.trim().includes("http://") ||
+            website.trim().includes("https://") ||
+            website.trim().includes("://") ||
+            website.trim().includes(":") ||
+            website.trim().includes("/")
+        ) {
+            setError ("please enter the domain only. ie:(google.com)")
+        } else {
+            setError("")
+        }
+    }, [website])
+
     return (
         <div className="w-full min-h-screen bg-black items-center justify-center flex flex-col">
             <Logo size="lg" />
@@ -45,14 +82,14 @@ export default function AddPage() {
                             {error ? (
                                 <p className="text-xs pt-2 font-light text-red-400">{error}</p>
                             ) : (
-                                <p className="text-xs pt-2 font-light text-white/20">
+                                <p className={`text-xs pt-2 font-light ${error ? "text-red-400" : "text-white/20"}`}>
                                     enter the domain or subdomain without {"www"}
                                 </p>
                             )}
                         </span>
                         {error === "" && (
-                            <button className="button" onClick={addWebsite} disabled={user === "no user"}>
-                                {loading ? "adding..." : "add website"}
+                            <button className="button" onClick={checkDomainAddedBefore} disabled={user === "no user" || loading}>
+                                {loading ? "Adding..." : "Add Website"}
                             </button>
                         )}
                     </div>
