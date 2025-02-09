@@ -4,6 +4,7 @@ import Logo from "../comps/Logo";
 import { supabase } from "@/config/Supabase_Client";
 import useUser from "@/hooks/useUser";
 import { Item } from "@radix-ui/react-dropdown-menu";
+import { useRouter } from "next/navigation";
 
 export default function AddPage() {
     const [user] = useUser();
@@ -11,6 +12,7 @@ export default function AddPage() {
     const [error, setError] = useState("");
     const [website, setWebsite] = useState("");
     const [loading, setLoading] = useState(false);
+    const router = useRouter()
 
     const addWebsite = async () => {
         if (website.trim() === "" || loading || user === "no user") return;
@@ -94,7 +96,17 @@ export default function AddPage() {
                         )}
                     </div>
                 ) : (
-                    <p className="text-white">Website added successfully!</p>
+                    <div className="flex flex-col w-full items-center justify-center space-y-10">
+                        <span className="w-full lg:w-[50%]">
+                            <textarea type="text" className="input text-white/20 cursor-pointer" disabled value={`<script defer data-domain="${website}" src="http://localhost/3000/tracking-script.js"></script>`}/>
+                            <p>
+                                paste this snippet in the <b className="text-red-600">{"<head>"}</b> of your website
+                            </p>
+                        </span>
+                        <button onClick={() => router.push(`/w/${website.trim()}`)} className="button">
+                            added
+                        </button>
+                    </div>
                 )}
             </div>
         </div>
