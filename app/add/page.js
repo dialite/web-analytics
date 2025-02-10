@@ -19,7 +19,7 @@ export default function AddPage() {
         setLoading(true);
 
         const { data, error } = await supabase
-            .from("website")
+            .from("websites")
             .insert([{ website_name: website.trim(), user_id: user.id }])
             .select();
 
@@ -36,7 +36,7 @@ export default function AddPage() {
         setError(""); // Reset error state
         let fetchedWebsites = [];
     
-        const { data: websites, error } = await supabase.from("website").select("*");
+        const { data: websites, error } = await supabase.from("websites").select("*");
     
         if (error) {
             setError("Error fetching websites"); // Set error if the query fails
