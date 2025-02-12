@@ -1,3 +1,4 @@
+"use client"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import useUser from "@/hooks/useUser";
 import { ArrowRightIcon } from "lucide-react";
