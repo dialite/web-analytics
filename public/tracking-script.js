@@ -4,6 +4,11 @@
     var document = window.document
     var scriptElement = document.currentScript
     var dataDomain = scriptElement.getAttribute("data-domain")
+
+    let queryString = location.search
+    const params = new URLSearchParams(queryString)
+    var source = params.get("utm")
+
     var endpoint = "http:localhost:3000/api/track"
 
     function generateSessionId() {
@@ -46,7 +51,8 @@
         var payload = {
             event: eventName,
             url: location.href,
-            domain: dataDomain
+            domain: dataDomain,
+            source
         }
         sendRequest(payload, options)
     }
