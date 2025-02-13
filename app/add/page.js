@@ -98,7 +98,8 @@ export default function AddPage() {
                 ) : (
                     <div className="flex flex-col w-full items-center justify-center space-y-10">
                         <span className="w-full lg:w-[50%]">
-                            <textarea type="text" className="input text-white/20 cursor-pointer" disabled value={`<script defer data-domain="${website}" src="http://localhost/3000/tracking-script.js"></script>`}/>
+                            <textarea type="text" className="input text-white/20 cursor-pointer" disabled value={`<script defer data-domain="${website}"
+                                src="https://web-analytics-gray.vercel.app/tracking-script.js"></script>`}/>
                             <p>
                                 paste this snippet in the <b className="text-red-600">{"<head>"}</b> of your website
                             </p>

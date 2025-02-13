@@ -9,7 +9,7 @@
     const params = new URLSearchParams(queryString)
     var source = params.get("utm")
 
-    var endpoint = "http:localhost:3000/api/track"
+    var endpoint = "https://web-analytics-gray.vercel.app/api/track"
 
     function generateSessionId() {
         return "session-" + Math.random().toString(36).substr(2, 9)
