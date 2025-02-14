@@ -173,12 +173,11 @@ export default function WebsitePage() {
                                         className="basis-1/2"
                                     >
                                         <div
-                                        className={`bg-black smooth group hover:border-white/10
+                                        className={`bg-black smooth group border-white/5
                                         text-white text-center border`}
                                         >
                                         <p
                                             className={`text-white/70 font-medium py-8 w-full
-                                            group-hover:border-white/10
                                             smooth text-center border-b`}
                                         >
                                             {eventName}
