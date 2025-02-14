@@ -5,14 +5,26 @@ import { supabase } from "@/config/Supabase_Client";
 import useUser from "@/hooks/useUser";
 import { redirect, useParams } from "next/navigation";
 import { useEffect, useState } from "react";
+import {
+    Carousel,
+    CarouselContent,
+    CarouselItem,
+    CarouselNext,
+    CarouselPrevious,
+  } from "@/components/ui/carousel"
+  
 
 export default function WebsitePage() {
     const [user] = useUser()
     const {website} = useParams()
     const [loading, setLoading] = useState(false)
     const [pageViews, setPageViews] = useState([])
+    const [customEvents, setCustomEvents] = useState([])
     const [totalVisits, setTotalVisits] = useState([])
     const [groupedPageViews, setGroupedPageViews] = useState([])
+    const [groupedPageSources, setGroupedPageSources] = useState([])
+    const [groupedCustomEvents, setGroupedCustomEvents] = useState([])
+
 
     useEffect(() => {
         if (!user) return
@@ -27,15 +39,23 @@ export default function WebsitePage() {
     const fetchViews = async () => {
         setLoading(true)
         try {
-            const [viewsResponse, visitsResponse] = await Promise.all([
+            const [viewsResponse, visitsResponse, customEventsResponse] = await Promise.all([
                 supabase.from("page_views").select().eq("domain", website),
-                supabase.from("visits").select().eq("website_id", website)
+                supabase.from("visits").select().eq("website_id", website),
+                supabase.from("events").select().eq("website_id", website)
             ])
             const views = viewsResponse.data
             const visits = visitsResponse.data
+            const customEventsData = customEventsResponse.data
             setPageViews(views)
             setGroupedPageViews(groupPageViews(views))
             setTotalVisits(visits)
+            setCustomEvents(customEventsData)
+            setGroupedCustomEvents(
+                customEventsData.reduce((acc, event) => {
+                    acc[event.event_name] = (acc[event.event_name] || 0) + 1
+                }, {})
+            )
         } catch (error) {
             console.error(error)
         }
@@ -68,6 +88,12 @@ export default function WebsitePage() {
         }
     }
 
+    const formatTimeStampz = (date) => {
+        const timestamp = new Date(date)
+        const formatTimeStamp = timestamp.toLocaleString()
+        return formatTimeStamp
+    }
+
     if (loading) {
         <div className="bg-black text-white min-h-screen w-full items-start justify-start flex flex-col">
             <Header />
@@ -92,7 +118,7 @@ export default function WebsitePage() {
                 <Tabs defaultValue="general" className="w-full items-center justify-center flex flex-col">
                     <TabsList className="w-full bg-transparent mb-4 items-start justify-start flex">
                         <TabsTrigger value="general">general</TabsTrigger>
-                        <TabsTrigger value="custom events">custom events</TabsTrigger>
+                        <TabsTrigger value="custom Events">custom Events</TabsTrigger>
                     </TabsList>
                     <TabsContent value="general" className="w-full">
                         <div className="w-full grid grid-cols-1 md:grid-cols-2 px-4 gap-6">
@@ -128,21 +154,64 @@ export default function WebsitePage() {
                                         add ?utm={"{source}"} to track
                                     </p>
                                 </h1>
-                                {/* {groupedPageSources.map((pageSource) => (
+                                {groupedPageSources.map((pageSource) => (
                                     <div key={pageSource} className="text-white w-full items-center justify-between px-6 py-4 border-b border-white/5 flex">
                                         <p className="text-white/70 font-light">/{pageSource.source}</p>
                                         <p>{abbreviateNumber(pageSource.visits)}</p>
                                     </div>
-                                ))} */}
+                                ))}
                             </div>
                         </div>
                     </TabsContent>
-                    <TabsContent value="custom events">Change your password here.</TabsContent>
+                    <TabsContent value="custom Events" className="w-full">
+                        {groupedCustomEvents && <Carousel className="w-full px-4">
+                            <CarouselContent>
+                                {Object.entries(groupedCustomEvents).map(
+                                    ([eventName, count]) => (
+                                    <CarouselItem
+                                        key={`${eventName}-${count}`}
+                                        className="basis-1/2"
+                                    >
+                                        <div
+                                        className={`bg-black smooth group hover:border-white/10
+                                        text-white text-center border`}
+                                        >
+                                        <p
+                                            className={`text-white/70 font-medium py-8 w-full
+                                            group-hover:border-white/10
+                                            smooth text-center border-b`}
+                                        >
+                                            {eventName}
+                                        </p>
+                                        <p className="py-12 text-3xl lg:text-4xl font-bold bg-[#050505]">
+                                            {count}
+                                        </p>
+                                        </div>
+                                    </CarouselItem>
+                                    )
+                                )}
+                            </CarouselContent>
+                            <CarouselPrevious />
+                            <CarouselNext />
+                        </Carousel>}
+                        <div className="items-center justify-center bg-black mt-12
+                            w-full border-y border-white/5 relative">
+                             {customEvents.map(event => (
+                                <div key={event.id}
+                                    className={`text-white w-full items-start justify-start 
+                                        px-6 py-12 border-b border-white/5 flex flex-col relative`}>
+                                    <p className="text-white/70 font-light pb-3">
+                                            {event.event_name}
+                                    </p>
+                                    <p className="">{event.message}</p>
+                                    <p className="italic absolute right-2 bottom-2 text-xs text-white/50">{formatTimeStampz(event.timestamp)}</p>
+                                </div>
+                             ))}   
+                        </div>
+                    </TabsContent>
                     </Tabs>
 
                 </div>
             </div>}
     </div>
 }
-
-// testing
